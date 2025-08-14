@@ -1,0 +1,50 @@
+### 새 도서 등록
+POST http://localhost:8080/api/books
+Content-Type: application/json
+
+{
+  "title":"스프링 부트 입문",
+  "author":"홍길동",
+  "isbn":"9788956746425",
+  "price":30000,
+  "publishDate":"2025-05-07"
+}
+
+### 새 도서 등록2
+POST  http://localhost:8080/api/books
+Content-Type: application/json
+
+{
+  "title":"JPA 프로그래밍",
+  "author":"박둘리",
+  "isbn":"9788956746432",
+  "price":35000,
+  "publishDate":"2025-04-30"
+}
+
+### 모든 도서 조회
+GET http://localhost:8080/api/books
+Accept: application/json
+
+### ID로 특정 도서 조회
+GET http://localhost:8080/api/books/1
+Accept: application/json
+
+### ISBN으로 도서 조회
+GET http://localhost:8080/api/books/isbn/9780134685991
+Accept: application/json
+
+### 도서 정보 수정
+PUT http://localhost:8080/api/books/1
+Content-Type: application/json
+
+{
+  "title": "Effective Java - 3rd Edition",
+  "author": "Joshua Bloch",
+  "isbn": "9780134685991",
+  "publishDate": "2018-01-06",
+  "price": 48000
+}
+
+### 도서 삭제
+DELETE http://localhost:8080/api/books/1
