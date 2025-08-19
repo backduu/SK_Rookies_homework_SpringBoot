@@ -4,7 +4,7 @@ import com.packt.myspringbootlab2.entity.Book;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.NoArgsConstructor;
-import org.junit.Test;
+import org.testng.annotations.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.stereotype.Repository;
@@ -76,4 +76,3 @@ public class BookRepositoryTest {
         assertThat(deleted).isEmpty();
     }
 }
-
