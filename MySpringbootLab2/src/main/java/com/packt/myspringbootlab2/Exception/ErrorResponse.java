@@ -3,9 +3,13 @@ package com.packt.myspringbootlab2.Exception;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
-@Getter
+import java.time.LocalDateTime;
+
 @AllArgsConstructor
-public class ErrorObject {
-    private String code;
+@Getter
+public class ErrorResponse {
     private String message;
+    private int status;
+    private LocalDateTime timestamp;
 }
+

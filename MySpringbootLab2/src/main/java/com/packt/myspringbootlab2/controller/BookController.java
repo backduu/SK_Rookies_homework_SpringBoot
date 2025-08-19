@@ -1,10 +1,10 @@
 package com.packt.myspringbootlab2.controller;
 
 import com.packt.myspringbootlab2.Exception.BusinessException;
-import com.packt.myspringbootlab2.Exception.ErrorObject;
 import com.packt.myspringbootlab2.entity.Book;
 import com.packt.myspringbootlab2.repository.BookRepository;
 import lombok.AllArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -13,7 +13,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/books")
 @AllArgsConstructor
-public class Controller {
+public class BookController {
     private final BookRepository bookRepository;
 
     @GetMapping
@@ -32,7 +32,7 @@ public class Controller {
     public Book getBookByIsbn(@PathVariable String isbn) {
         Book book = bookRepository.findByIsbn(isbn);
         if (book == null) {
-            throw new BusinessException(new ErrorObject("BOOK_NOT_FOUND", "도서를 찾을 수 없습니다."));
+            throw new BusinessException("도서를 찾을 수 없습니다.", HttpStatus.NOT_FOUND);
         }
         return book;
     }
