@@ -1,80 +1,103 @@
 package com.packt.myspringbootlab2.dto;
 import com.packt.myspringbootlab2.entity.Book;
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.*;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 
 import java.time.LocalDate;
 
 
 public class BookDTO {
 
-    @Getter @Setter
-    public static class BookCreateRequest {
-
-        @NotBlank(message = "도서 제목은 필수입니다.")
+    @Data
+    @NoArgsConstructor
+    @AllArgsConstructor
+    @Builder
+    public static class Request {
+        @NotBlank(message = "Book title is required")
         private String title;
 
-        @NotBlank(message = "저자 이름은 필수입니다.")
+        @NotBlank(message = "Author name is required")
         private String author;
 
-        @NotBlank(message = "ISBN은 필수입니다.")
+        @NotBlank(message = "ISBN is required")
+        @Pattern(regexp = "^(?=(?:\\D*\\d){10}(?:(?:\\D*\\d){3})?$)[\\d-]+$",
+                message = "ISBN must be valid (10 or 13 digits, with or without hyphens)")
         private String isbn;
 
-        @NotNull(message = "가격은 필수입니다.")
-        @Min(value = 0, message = "가격은 0 이상이어야 합니다.")
+        @PositiveOrZero(message = "Price must be positive or zero")
         private Integer price;
 
-        @NotNull(message = "출판일은 필수입니다.")
+        @Past(message = "Publish date must be in the past")
         private LocalDate publishDate;
 
-        public Book toEntity() {
-            return Book.builder()
-                    .title(title)
-                    .author(author)
-                    .isbn(isbn)
-                    .price(price)
-                    .publishDate(publishDate)
-                    .build();
-        }
+        @Valid
+        private BookDetailDTO detailRequest;
     }
 
-    @Getter @Setter
-    public static class BookUpdateRequest {
-
-        @Size(min = 1, max = 100, message = "제목은 1~100자 사이여야 합니다.")
-        private String title;
-
-        @Size(min = 1, max = 50, message = "저자 이름은 1~50자 사이여야 합니다.")
-        private String author;
-
-        @Min(value = 0, message = "가격은 0 이상이어야 합니다.")
-        private Integer price;
-
-        private LocalDate publishDate;
+    @Data
+    @NoArgsConstructor
+    @AllArgsConstructor
+    @Builder
+    public static class BookDetailDTO {
+        private String description;
+        private String language;
+        private Integer pageCount;
+        private String publisher;
+        private String coverImageUrl;
+        private String edition;
     }
 
-    @Getter @Setter
-    public static class BookResponse {
-
+    @Data
+    @NoArgsConstructor
+    @AllArgsConstructor
+    @Builder
+    public static class Response {
         private Long id;
         private String title;
         private String author;
         private String isbn;
         private Integer price;
         private LocalDate publishDate;
+        private BookDetailResponse detail;
 
-        public static BookResponse from(Book book) {
-            BookResponse response = new BookResponse();
-            response.setId(book.getId());
-            response.setTitle(book.getTitle());
-            response.setAuthor(book.getAuthor());
-            response.setIsbn(book.getIsbn());
-            response.setPrice(book.getPrice());
-            response.setPublishDate(book.getPublishDate());
-            return response;
+        public static Response fromEntity(Book book) {
+            BookDetailResponse detailResponse = book.getBookDetail() != null
+                    ? BookDetailResponse.builder()
+                    .id(book.getBookDetail().getId())
+                    .description(book.getBookDetail().getDescription())
+                    .language(book.getBookDetail().getLanguage())
+                    .pageCount(book.getBookDetail().getPageCount())
+                    .publisher(book.getBookDetail().getPublisher())
+                    .coverImageUrl(book.getBookDetail().getCoverImageUrl())
+                    .edition(book.getBookDetail().getEdition())
+                    .build()
+                    : null;
+
+            return Response.builder()
+                    .id(book.getId())
+                    .title(book.getTitle())
+                    .author(book.getAuthor())
+                    .isbn(book.getIsbn())
+                    .price(book.getPrice())
+                    .publishDate(book.getPublishDate())
+                    .detail(detailResponse)
+                    .build();
         }
     }
 
+    @Data
+    @NoArgsConstructor
+    @AllArgsConstructor
+    @Builder
+    public static class BookDetailResponse {
+        private Long id;
+        private String description;
+        private String language;
+        private Integer pageCount;
+        private String publisher;
+        private String coverImageUrl;
+        private String edition;
+    }
 }
 

@@ -17,57 +17,92 @@ public class BookService {
 
     private final BookRepository bookRepository;
 
-    public List<BookDTO.BookResponse> getAllBooks() {
-        return bookRepository.findAll()
-                .stream()
-                .map(BookDTO.BookResponse::from)
+    public List<BookDTO.Response> getAllBooks() {
+        return bookRepository.findAll().stream()
+                .map(BookDTO.Response::fromEntity)
                 .collect(Collectors.toList());
     }
 
-    public BookDTO.BookResponse getBookById(Long id) {
+    public BookDTO.Response getBookById(Long id) {
         Book book = bookRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("도서를 찾을 수 없습니다."));
-        return BookDTO.BookResponse.from(book);
+                .orElseThrow(() -> new IllegalArgumentException("도서를 찾지 못했습니다."));
+        return BookDTO.Response.fromEntity(book);
     }
 
-    public BookDTO.BookResponse getBookByIsbn(String isbn) {
-        Book book = bookRepository.findByIsbn(isbn);
-        if (book == null) throw new IllegalArgumentException("ISBN으로 도서를 찾을 수 없습니다.");
-        return BookDTO.BookResponse.from(book);
+
+    public BookDTO.Response getBookByIsbn(String isbn) {
+        Book book = (Book) bookRepository.findByIsbn(isbn)
+                .orElseThrow(() -> new IllegalArgumentException("도서를 찾지 못했습니다."));
+        return BookDTO.Response.fromEntity(book);
+
     }
 
-    public List<BookDTO.BookResponse> getBooksByAuthor(String author) {
-        return bookRepository.findByAuthor(author)
-                .stream()
-                .map(BookDTO.BookResponse::from)
+    public List<BookDTO.Response> getBooksByAuthor(String author) {
+        return bookRepository.findByAuthorContainingIgnoreCase(author).stream()
+                .map(BookDTO.Response::fromEntity)
                 .collect(Collectors.toList());
     }
 
+    public List<BookDTO.Response> getBooksByTitle(String title) {
+        return bookRepository.findByTitleContainingIgnoreCase(title).stream()
+                .map(BookDTO.Response::fromEntity)
+                .collect(Collectors.toList());
+    }
     @Transactional
-    public BookDTO.BookResponse createBook(BookDTO.BookCreateRequest request) {
-        Book saved = bookRepository.save(request.toEntity());
-        return BookDTO.BookResponse.from(saved);
+    public BookDTO.Response createBook(BookDTO.Request request) {
+        BookDetail detail = BookDetail.builder()
+                .description(request.getDetailRequest().getDescription())
+                .language(request.getDetailRequest().getLanguage())
+                .pageCount(request.getDetailRequest().getPageCount())
+                .publisher(request.getDetailRequest().getPublisher())
+                .coverImageUrl(request.getDetailRequest().getCoverImageUrl())
+                .edition(request.getDetailRequest().getEdition())
+                .build();
+
+        Book book = Book.builder()
+                .title(request.getTitle())
+                .author(request.getAuthor())
+                .isbn(request.getIsbn())
+                .price(request.getPrice())
+                .publishDate(request.getPublishDate())
+                .bookDetail(detail)
+                .build();
+
+        return BookDTO.Response.fromEntity(bookRepository.save(book));
+
     }
 
     @Transactional
-    public BookDTO.BookResponse updateBook(Long id, BookDTO.BookUpdateRequest request) {
+    public BookDTO.Response updateBook(Long id, BookDTO.Request request) {
         Book book = bookRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("도서를 찾을 수 없습니다."));
+                .orElseThrow(() -> new IllegalArgumentException("도서를 찾지 못했습니다."));
 
-        if (request.getTitle() != null) book.setTitle(request.getTitle());
-        if (request.getAuthor() != null) book.setAuthor(request.getAuthor());
-        if (request.getPrice() != null) book.setPrice(request.getPrice());
-        if (request.getPublishDate() != null) book.setPublishDate(request.getPublishDate());
+        book.setTitle(request.getTitle());
+        book.setAuthor(request.getAuthor());
+        book.setIsbn(request.getIsbn());
+        book.setPrice(request.getPrice());
+        book.setPublishDate(request.getPublishDate());
 
-        return BookDTO.BookResponse.from(bookRepository.save(book));
+        if (book.getBookDetail() == null) {
+            book.setBookDetail(new BookDetail());
+        }
+
+        BookDetail detail = book.getBookDetail();
+        detail.setDescription(request.getDetailRequest().getDescription());
+        detail.setLanguage(request.getDetailRequest().getLanguage());
+        detail.setPageCount(request.getDetailRequest().getPageCount());
+        detail.setPublisher(request.getDetailRequest().getPublisher());
+        detail.setCoverImageUrl(request.getDetailRequest().getCoverImageUrl());
+        detail.setEdition(request.getDetailRequest().getEdition());
+
+        return BookDTO.Response.fromEntity(bookRepository.save(book));
     }
 
     @Transactional
     public void deleteBook(Long id) {
-        if (!bookRepository.existsById(id)) {
-            throw new IllegalArgumentException("삭제할 도서가 존재하지 않습니다.");
-        }
-        bookRepository.deleteById(id);
+        Book book = bookRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Book not found"));
+        bookRepository.delete(book);
     }
 }
 

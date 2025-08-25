@@ -11,9 +11,11 @@ import java.time.LocalDate;
 @Getter
 @Setter
 @Builder
+@Table(name = "books")
 public class Book {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name="book_id")
     private Long id;
 
     private String title;
@@ -21,4 +23,8 @@ public class Book {
     private String isbn;
     private LocalDate publishDate;
     private Integer price;
+
+    @OneToOne(mappedBy = "book", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private BookDetail bookDetail;
+
 }
