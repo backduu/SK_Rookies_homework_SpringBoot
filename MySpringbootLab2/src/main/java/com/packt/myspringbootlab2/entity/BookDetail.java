@@ -1,5 +1,6 @@
 package com.packt.myspringbootlab2.entity;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -26,5 +27,6 @@ public class BookDetail {
 
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "book_id", unique = true)
+    @JsonBackReference
     private Book book;
 }

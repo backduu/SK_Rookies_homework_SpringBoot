@@ -3,6 +3,7 @@ package com.packt.myspringbootlab2.Service;
 import com.packt.myspringbootlab2.dto.*;
 import com.packt.myspringbootlab2.entity.*;
 import com.packt.myspringbootlab2.repository.*;
+import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -16,6 +17,7 @@ import java.util.stream.Collectors;
 public class BookService {
 
     private final BookRepository bookRepository;
+    private final PublisherRepository publisherRepository;
 
     public List<BookDTO.Response> getAllBooks() {
         return bookRepository.findAll().stream()
@@ -48,6 +50,35 @@ public class BookService {
                 .map(BookDTO.Response::fromEntity)
                 .collect(Collectors.toList());
     }
+
+    public List<BookDTO.Response> getBooksByPublisherId(Long publisherId) {
+        Publisher publisher = publisherRepository.findByIdWithBooks(publisherId)
+                .orElseThrow(() -> new EntityNotFoundException("해당 ID의 출판사를 찾을 수 없습니다: " + publisherId));
+
+        return publisher.getBooks().stream()
+                .map(book -> BookDTO.Response.builder()
+                        .id(book.getId())
+                        .title(book.getTitle())
+                        .author(book.getAuthor())
+                        .price(book.getPrice())
+                        .publishDate(book.getPublishDate())
+                        .publisher(PublisherDTO.SimpleResponse.builder()
+                                .id(publisher.getId())
+                                .name(publisher.getName())
+                                .bookCount((long) publisher.getBooks().size())
+                                .build())
+                        .detail(BookDTO.BookDetailResponse.builder()
+                                .id(book.getBookDetail().getId())
+                                .description(book.getBookDetail().getDescription())
+                                .language(book.getBookDetail().getLanguage())
+                                .pageCount(book.getBookDetail().getPageCount())
+                                .coverImageUrl(book.getBookDetail().getCoverImageUrl())
+                                .edition(book.getBookDetail().getEdition())
+                                .build())
+                        .build())
+                .collect(Collectors.toList());
+    }
+
     @Transactional
     public BookDTO.Response createBook(BookDTO.Request request) {
         BookDetail detail = BookDetail.builder()

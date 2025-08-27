@@ -4,14 +4,13 @@ import com.packt.myspringbootlab2.entity.Book;
 import com.packt.myspringbootlab2.entity.BookDetail;
 import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
 
 import java.util.*;
 
-public interface BookDetailRepository extends JpaRepository<Book,Long> {
-    Optional<BookDetail> findByBookId(Long bookId);
+@Repository
+public interface BookDetailRepository extends JpaRepository<BookDetail,Long> {
+    Optional<BookDetail> findByBook_Id(Long id);
 
-    @EntityGraph(attributePaths = {"book"})
-    Optional<BookDetail> findByIdWithBook(Long id);
-
-    List<BookDetail> findByBook_Publisher(String publisher);
+    List<BookDetail> findByPublisher(String publisher);
 }

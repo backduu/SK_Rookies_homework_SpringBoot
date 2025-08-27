@@ -60,6 +60,7 @@ public class BookDTO {
         private Integer price;
         private LocalDate publishDate;
         private BookDetailResponse detail;
+        private PublisherDTO.SimpleResponse publisher;
 
         public static Response fromEntity(Book book) {
             BookDetailResponse detailResponse = book.getBookDetail() != null

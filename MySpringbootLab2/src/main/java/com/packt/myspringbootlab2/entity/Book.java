@@ -1,5 +1,6 @@
 package com.packt.myspringbootlab2.entity;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -25,6 +26,11 @@ public class Book {
     private Integer price;
 
     @OneToOne(mappedBy = "book", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @JsonManagedReference
     private BookDetail bookDetail;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "publisher_id")
+    private Publisher publisher;
 
 }
