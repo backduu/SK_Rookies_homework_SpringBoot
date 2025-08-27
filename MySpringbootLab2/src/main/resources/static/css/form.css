@@ -1,0 +1,29 @@
+.form-container {
+    width: 400px;
+    margin: 50px auto;
+}
+
+.form-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+}
+
+.form-group label {
+    font-weight: bold;
+    margin-bottom: 5px;
+}
+
+.form-group input {
+    padding: 8px;
+    font-size: 14px;
+}
+
+.table-container {
+    margin-top: 30px;
+}
